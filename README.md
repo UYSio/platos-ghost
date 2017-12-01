@@ -1,7 +1,16 @@
+# What?
+
+Imports a Ghost blog from its JSON to a Jekyll layout. (ish)
+
+# TODO
+
+Replace the `/content/images/year/month` image paths with whatever.
+
+# Ghost data
 
 Some examples from the Ghost JSON below.
 
-# Post
+## Post
 
 
 ```
@@ -37,7 +46,7 @@ cat opyate-com.ghost.2017-11-28.json| jq '.db[].data.posts[0]'
 }
 ```
 
-# Post->tag
+## Post->tag
 
 ```
 cat opyate-com.ghost.2017-11-28.json| jq '.db[].data.posts_tags[0]'
@@ -52,7 +61,7 @@ cat opyate-com.ghost.2017-11-28.json| jq '.db[].data.posts_tags[0]'
 }
 ```
 
-# Tag
+## Tag
 
 ```
 cat opyate-com.ghost.2017-11-28.json| jq '.db[].data.tags[0]'

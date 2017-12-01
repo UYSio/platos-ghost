@@ -1,8 +1,13 @@
-const fs = require('fs');
-const path = require('path');
+var mkdirp = require('mkdirp');
+var fs = require('fs');
+var https = require('https');
 
 var ghost = require('./' + process.argv[2]);
 var data = ghost.db[0].data;
+
+var conf = {
+    out: 'out/'
+};
 
 //build tags lookup
 var lookup = {};
@@ -32,12 +37,29 @@ function dirFrom(pub) {
     return root + '/';
 }
 
+function download(url, dest, cb) {
+    var file = fs.createWriteStream(dest);
+    var request = https.get(url, function(response) {
+        response.pipe(file);
+        file.on('finish', function() {
+            file.close(cb);  // close() is async, call cb after close completes.
+        });
+    }).on('error', function(err) { // Handle errors
+        fs.unlink(dest); // Delete the file async. (But we don't check the result)
+        if (cb) cb(err.message);
+    });
+};
+
 for (var i=0; i<data.posts.length; i++) {
     var post = data.posts[i];
 
     var tags = '';
     if (lookup[post.id]) {
         tags = lookup[post.id].join(' ');
+        // tags to skip on
+        if (tags.indexOf('noise') > -1) {
+            continue;
+        }
     }
 
     var out = '';
@@ -48,12 +70,31 @@ for (var i=0; i<data.posts.length; i++) {
     out += '\ncategory: blog';
     out += '\n--';
     out += '\n';
+    out += '\n';
     out += post.markdown;
     out += '\n';
 
+    var outDir = conf.out + dirFrom(post.published_at);
+    mkdirp.sync(outDir);
+
+    var outFile = post.slug + '.md';
+    fs.writeFile(outDir + outFile, out, function(err) {
+        if(err) {
+            return console.log(err, post);
+        }
+    });
+
+    // download images
     if (out.indexOf("content/images") > -1) {
-        //console.log(out);
-        var df = dirFrom(post.published_at, post.slug);
-        console.log(df);
+        var re = /(\/content\/images\/.*\/)(.*)\)/g;
+        var m;
+        do {
+            m = re.exec(out);
+            if (m) {
+                console.log(m[1], m[2]);
+
+                download('https://opyate.com' + m[1], outDir + m[2]);
+            }
+        } while (m);
     }
 }

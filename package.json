@@ -1,0 +1,27 @@
+{
+  "name": "platos-ghost",
+  "version": "0.0.1",
+  "description": "From Ghost to Plato (based on Jekyll)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UYSio/platos-ghost.git"
+  },
+  "keywords": [
+    "ghost",
+    "jekyll",
+    "plato"
+  ],
+  "author": "Juan M Uys",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UYSio/platos-ghost/issues"
+  },
+  "homepage": "https://github.com/UYSio/platos-ghost#readme",
+  "dependencies": {
+    "mkdirp": "^0.5.1"
+  }
+}
