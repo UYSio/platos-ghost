@@ -2,6 +2,20 @@
 
 Imports a Ghost blog from its JSON to a Jekyll layout. (ish)
 
+# How?
+
+Run with 
+
+```
+node index.js <ghost-dump.json>
+```
+
+E.g.
+
+```
+node index.js opyate-com.ghost.2017-11-28.json
+```
+
 # TODO
 
 Replace the `/content/images/year/month` image paths with whatever.

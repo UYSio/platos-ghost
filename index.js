@@ -1,6 +1,6 @@
 var mkdirp = require('mkdirp');
 var fs = require('fs');
-var https = require('https');
+var request = require('sync-request');
 
 var ghost = require('./' + process.argv[2]);
 var data = ghost.db[0].data;
@@ -38,16 +38,12 @@ function dirFrom(pub) {
 }
 
 function download(url, dest, cb) {
+    console.log('>', url);
     var file = fs.createWriteStream(dest);
-    var request = https.get(url, function(response) {
-        response.pipe(file);
-        file.on('finish', function() {
-            file.close(cb);  // close() is async, call cb after close completes.
-        });
-    }).on('error', function(err) { // Handle errors
-        fs.unlink(dest); // Delete the file async. (But we don't check the result)
-        if (cb) cb(err.message);
-    });
+    var res = request('GET', url);
+    file.write(res.getBody());
+    file.end();
+    console.log('<');
 };
 
 for (var i=0; i<data.posts.length; i++) {
@@ -63,12 +59,13 @@ for (var i=0; i<data.posts.length; i++) {
     }
 
     var out = '';
-    out += 'title: ' + post.title;
-    out += '\ndescription: ' + post.meta_description;
+    out += 'title: "' + post.title + '"';
+    var desc = post.meta_description || "Imported from Ghost using platos-ghost.";
+    out += '\ndescription: "' + desc + '"';
     out += '\nlayout: post';
     out += '\ntags: ' + tags;
     out += '\ncategory: blog';
-    out += '\n--';
+    out += '\n---';
     out += '\n';
     out += '\n';
     out += post.markdown;
@@ -93,7 +90,7 @@ for (var i=0; i<data.posts.length; i++) {
             if (m) {
                 console.log(m[1], m[2]);
 
-                download('https://opyate.com' + m[1], outDir + m[2]);
+                download('https://opyate.com' + m[1] + m[2], outDir + m[2], console.log);
             }
         } while (m);
     }
