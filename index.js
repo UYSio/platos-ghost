@@ -6,7 +6,8 @@ var ghost = require('./' + process.argv[2]);
 var data = ghost.db[0].data;
 
 var conf = {
-    out: 'out/'
+    out: 'out/',
+    download_images: false
 };
 
 //build tags lookup
@@ -57,10 +58,11 @@ for (var i=0; i<data.posts.length; i++) {
             continue;
         }
     }
+    var desc = post.meta_description || post.markdown.substring(0,post.markdown.indexOf('\n')) + "...";
+    desc = desc.replace(/[^a-zA-Z0-9 '\.,:]+/, '');
 
     var out = '';
     out += 'title: "' + post.title + '"';
-    var desc = post.meta_description || "Imported from Ghost using platos-ghost.";
     out += '\ndescription: "' + desc + '"';
     out += '\nlayout: post';
     out += '\ntags: ' + tags;
@@ -77,21 +79,23 @@ for (var i=0; i<data.posts.length; i++) {
     var outFile = post.slug + '.md';
     fs.writeFile(outDir + outFile, out, function(err) {
         if(err) {
-            return console.log(err, post);
+            console.log(err, post);
         }
     });
 
     // download images
-    if (out.indexOf("content/images") > -1) {
-        var re = /(\/content\/images\/.*\/)(.*)\)/g;
-        var m;
-        do {
-            m = re.exec(out);
-            if (m) {
-                console.log(m[1], m[2]);
+    if (conf.download_images) {
+        if (out.indexOf("content/images") > -1) {
+            var re = /(\/content\/images\/.*\/)(.*)\)/g;
+            var m;
+            do {
+                m = re.exec(out);
+                if (m) {
+                    console.log(m[1], m[2]);
 
-                download('https://opyate.com' + m[1] + m[2], outDir + m[2], console.log);
-            }
-        } while (m);
+                    download('https://opyate.com' + m[1] + m[2], outDir + m[2], console.log);
+                }
+            } while (m);
+        }
     }
 }
