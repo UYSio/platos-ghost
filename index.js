@@ -49,6 +49,7 @@ function download(url, dest, cb) {
 
 for (var i=0; i<data.posts.length; i++) {
     var post = data.posts[i];
+    var md = post.markdown;
 
     var tags = '';
     if (lookup[post.id]) {
@@ -58,7 +59,9 @@ for (var i=0; i<data.posts.length; i++) {
             continue;
         }
     }
-    var desc = post.meta_description || post.markdown.substring(0,post.markdown.indexOf('\n')) + "...";
+    var cutoff = md.indexOf('\n');
+    if (cutoff > 45) cutoff = 45;
+    var desc = post.meta_description || md.substring(0,cutoff) + "...";
     desc = desc.replace(/[^a-zA-Z0-9 '\.,:]+/, '');
 
     var out = '';
@@ -70,7 +73,7 @@ for (var i=0; i<data.posts.length; i++) {
     out += '\n---';
     out += '\n';
     out += '\n';
-    out += post.markdown;
+    out += md;
     out += '\n';
 
     var outDir = conf.out + dirFrom(post.published_at);
