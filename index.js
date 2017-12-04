@@ -60,9 +60,13 @@ for (var i=0; i<data.posts.length; i++) {
         }
     }
     var cutoff = md.indexOf('\n');
+    // TODO this is a hack around markdown links (i.e. just avoid them ;)
+    if (cutoff > md.indexOf('http')) {
+        cutoff = md.indexOf('http');
+    }
     if (cutoff > 45) cutoff = 45;
     var desc = post.meta_description || md.substring(0,cutoff) + "...";
-    desc = desc.replace(/[^a-zA-Z0-9 '\.,:]+/, '');
+    desc = desc.replace(/[^a-zA-Z0-9 '\.,:]+/g, '');
 
     var out = '';
     out += 'title: "' + post.title + '"';
